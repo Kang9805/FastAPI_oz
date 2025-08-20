@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.13"
 fastapi = "^0.116.1"
 uvicorn = "^0.35.0"
+orjson = "3.10.12"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -34,7 +35,10 @@ target-version = "py313"
 plugins = ["pydantic.mypy"]
 python_version = 3.13
 strict = true
-exclude = '1일차/'
+exclude = [
+    "1일차/.*",
+    "2일차/.*"
+]
 
 [tool.coverage.run]
 omit = ["*/test_*.py"]
