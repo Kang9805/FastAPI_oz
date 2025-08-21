@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from tortoise import Model, fields
+
 from app.tortoise_models.base_model import BaseModel
 
 

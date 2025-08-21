@@ -14,6 +14,7 @@ cryptography = "44.0.0"
 aerich = "0.8.1"
 tomlkit = "0.13.2"
 pydantic-settings = "2.7.1"
+httpx = "0.28.1"
 
 [tool.poetry.dependencies.tortoise-orm]
 version = "0.23.0"
@@ -45,6 +46,7 @@ omit = ["*/test_*.py"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
+filterwarnings = ['ignore::DeprecationWarning']
 
 [tool.aerich]
 tortoise_orm = "app.configs.tortoise_config.TORTOISE_ORM"
