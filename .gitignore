@@ -1,3 +1,4 @@
 .idea/
 __phycache__/
 .coverage
+.dmypy.json
