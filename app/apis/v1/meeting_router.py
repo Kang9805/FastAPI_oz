@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.dtos.create_meeting_response import CreateMeetingResponse
+from app.dtos.get_meeting_response import GetMeetingResponse
 from app.service.meeting_service_mysql import service_create_meeting_mysql
 
 edgedb_router = APIRouter(prefix="/v1/edgedb/meetings", tags=["Meeting"])
@@ -21,3 +22,19 @@ async def api_create_meeting_mysql() -> CreateMeetingResponse:
     meeting = await service_create_meeting_mysql()
     # 그 다음에 'meeting' 객체의 'url_code' 속성에 접근
     return CreateMeetingResponse(url_code=meeting.url_code)
+
+
+@edgedb_router.get(
+    "/{meeting_url_code",
+    description="meeting 을 조회합니다.",
+)
+async def api_get_meeting_edgedb(meeting_url_code: str) -> GetMeetingResponse:
+    return GetMeetingResponse(url_code="abc")
+
+
+@mysql_router.get(
+    "/{meeting_url_code",
+    description="meeting 을 조회합니다.",
+)
+async def api_get_meeting_mysql(meeting_url_code: str) -> GetMeetingResponse:
+    return GetMeetingResponse(url_code="abc")
