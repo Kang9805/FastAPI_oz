@@ -1,12 +1,16 @@
 import uuid
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from app.dtos.create_participant_request import CreateParticipantRequest
 from app.dtos.create_participant_response import (
     CreateParticipantEdgedbResponse,
     CreateParticipantMysqlResponse,
+    ParticipantDateMysql,
 )
+from app.service.meeting_service_mysql import service_get_meeting_mysql
+from app.service.participant_service_mysql import service_create_participant
 
 edgedb_router = APIRouter(prefix="/v1/edgedb/participants", tags=["Participant"])
 mysql_router = APIRouter(prefix="/v1/mysql/participants", tags=["Participant"])
@@ -23,4 +27,27 @@ async def api_create_participant_edgedb(
 async def api_create_participant_mysql(
     create_participant_request: CreateParticipantRequest,
 ) -> CreateParticipantMysqlResponse:
-    return CreateParticipantMysqlResponse(participant_id=123, participant_dates=[])
+    meeting = await service_get_meeting_mysql(create_participant_request.meeting_url_code)
+
+    if not meeting:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND,
+            detail=f"meeting with url_code: {create_participant_request.meeting_url_code} not found",
+        )
+
+    if not (meeting.start_date and meeting.end_date):
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="start and end should be set.",
+        )
+
+    participant, participant_dates = await service_create_participant(
+        create_participant_request,
+        meeting.start_date,
+        meeting.end_date,
+    )
+
+    return CreateParticipantMysqlResponse(
+        participant_id=participant.id,
+        participant_dates=[ParticipantDateMysql(id=pd.id, date=pd.date) for pd in participant_dates],
+    )
