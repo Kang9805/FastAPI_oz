@@ -17,3 +17,4 @@ class Config(BaseSettings):
     MYSQL_USER: str = "root"
     MYSQL_PASSWORD: str = "1234"
     MYSQL_DB: str = "FastAPIProject"
+    CONNECTION_POOL_MAXSIZE: int = 10

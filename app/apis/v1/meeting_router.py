@@ -6,7 +6,11 @@ from starlette.status import (
 )
 
 from app.dtos.create_meeting_response import CreateMeetingResponse
-from app.dtos.get_meeting_response import GetMeetingResponse
+from app.dtos.get_meeting_response import (
+    GetMeetingResponse,
+    ParticipantDateResponse,
+    ParticipantResponse,
+)
 from app.dtos.update_meeting_request import (
     MEETING_DATE_MAX_RANGE,
     UpdateMeetingDateRangeRequest,
@@ -75,7 +79,14 @@ async def api_get_meeting_mysql(meeting_url_code: str) -> GetMeetingResponse:
         end_date=meeting.end_date,
         title=meeting.title,
         location=meeting.location,
-        participants=[],
+        participants=[
+            ParticipantResponse(
+                id=p.id,
+                name=p.name,
+                dates=[ParticipantDateResponse(date=pd.date, id=pd.id) for pd in p.participant_dates],
+            )
+            for p in meeting.participants
+        ],
     )
 
 
@@ -115,7 +126,12 @@ async def api_update_meeting_date_range_mysql(
     meeting_after_update = await service_update_meeting_range_mysql(
         meeting_url_code, update_meeting_date_range_request.start_date, update_meeting_date_range_request.end_date
     )
-    assert meeting_after_update  # meeting 삭제 기능은 없으므로 meeting_after_update 는 무조건 있습니다.
+    if meeting_after_update is None:
+        raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND,
+            detail=f"meeting with url_code: {meeting_url_code} not found after update",
+        )
+
     return GetMeetingResponse(
         url_code=meeting_after_update.url_code,
         start_date=meeting_after_update.start_date,
